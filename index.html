@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MDH BOT SERVER</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body { background: #050505; color: #00f3ff; font-family: monospace; text-align: center; padding-top: 50px;}
+        .box { border: 1px solid #00f3ff; padding: 40px; max-width: 400px; margin: auto; background: #111;}
+        input { padding: 15px; width: 80%; background: #000; color: #00f3ff; border: 1px solid #00f3ff; margin-bottom: 20px;}
+        button { padding: 15px; width: 88%; background: #00f3ff; color: #000; font-weight: bold; cursor: pointer;}
+        #code { font-size: 3rem; margin-top: 20px; letter-spacing: 5px;}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>MDH BOT SECURE</h1>
+        <p id="status">WAIT 10 SECONDS TO BOOT...</p>
+        <div id="inputs">
+            <input type="text" id="phone" placeholder="Example: 27732945772">
+            <button onclick="getCode()">LINK DEVICE</button>
+        </div>
+        <div id="code"></div>
+    </div>
+    <script>
+        const socket = io();
+        function getCode() {
+            socket.emit('request-pairing-code', document.getElementById('phone').value);
+            document.getElementById('status').innerText = "LOADING...";
+        }
+        socket.on('status', msg => document.getElementById('status').innerText = msg);
+        socket.on('pairing-code-received', code => {
+            document.getElementById('inputs').style.display = 'none';
+            document.getElementById('code').innerText = code.match(/.{1,4}/g).join('-');
+        });
+        socket.on('ready', msg => {
+            document.getElementById('code').style.display = 'none';
+            document.getElementById('status').innerText = msg;
+            document.getElementById('status').style.color = "#00ff66";
+        });
+    </script>
+</body>
+</html>
